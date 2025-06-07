@@ -342,16 +342,16 @@ nav {
 
 /* Partners Section */
 .partners {
-    padding: 5rem 0;
+    padding: 6rem 0;
     background: #f8fafc;
     text-align: center;
     border-top: 1px solid #e2e8f0;
 }
 
 .partners h2 {
-    font-size: 2.2rem;
+    font-size: 2.5rem;
     color: #2d3748;
-    margin-bottom: 3rem;
+    margin-bottom: 4rem;
     font-weight: 600;
 }
 
@@ -359,16 +359,18 @@ nav {
     display: flex;
     justify-content: center;
     align-items: center;
-    gap: 5rem;
-    max-width: 1000px;
+    gap: 8rem;
+    max-width: 1200px;
     margin: 0 auto;
+    min-height: 200px;
 }
 
 .partner-logo {
-    opacity: 0.7;
+    opacity: 0.8;
     transition: all 0.5s ease;
-    filter: grayscale(50%);
+    filter: grayscale(30%);
     transform: scale(1);
+    flex-shrink: 0;
 }
 
 .partner-logo:hover {
@@ -388,30 +390,32 @@ nav {
 @keyframes fadeInUp {
     from {
         opacity: 0;
-        transform: translateY(20px) scale(0.95);
+        transform: translateY(30px) scale(0.9);
     }
     to {
-        opacity: 0.7;
+        opacity: 0.8;
         transform: translateY(0) scale(1);
     }
 }
 
 @keyframes fadeOutDown {
     from {
-        opacity: 0.7;
+        opacity: 0.8;
         transform: translateY(0) scale(1);
     }
     to {
         opacity: 0;
-        transform: translateY(-20px) scale(0.95);
+        transform: translateY(-30px) scale(0.9);
     }
 }
 
 .partner-logo img {
-    height: 100px;
+    height: 200px;
     width: auto;
-    max-width: 200px;
+    max-width: 400px;
     object-fit: contain;
+    border-radius: 8px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
 }
 
 /* Security Notice */
@@ -524,7 +528,13 @@ footer {
 
     .partner-logos {
         flex-direction: column;
-        gap: 2rem;
+        gap: 3rem;
+        min-height: auto;
+    }
+
+    .partner-logo img {
+        height: 120px;
+        max-width: 250px;
     }
 
     .security-notice-content {
