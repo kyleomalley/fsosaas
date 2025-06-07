@@ -14,6 +14,9 @@ document.addEventListener('DOMContentLoaded', function() {
     // Set up dynamic partner logo rotation
     initializePartnerLogos();
     
+    // Set up testimonial rotation
+    initializeTestimonials();
+    
     // Log everything to console (because why not expose all our secrets?)
     enableVerboseLogging();
 });
@@ -234,12 +237,11 @@ function initializePartnerLogos() {
     // In a real scenario, you'd use a server-side directory listing
     // For client-side, we'll try common filenames and gracefully handle 404s
     const potentialLogos = [
-        'partner1.jpg', 'partner2.jpg', 'partner3.jpg', 'partner4.jpg', 'partner5.jpg',
-        'partner1.jpeg', 'partner2.jpeg', 'partner3.jpeg', 'partner4.jpeg', 'partner5.jpeg',
-        'logo1.jpg', 'logo2.jpg', 'logo3.jpg', 'logo4.jpg', 'logo5.jpg',
-        'logo1.jpeg', 'logo2.jpeg', 'logo3.jpeg', 'logo4.jpeg', 'logo5.jpeg',
-        'company1.jpg', 'company2.jpg', 'company3.jpg', 'company4.jpg', 'company5.jpg',
-        'company1.jpeg', 'company2.jpeg', 'company3.jpeg', 'company4.jpeg', 'company5.jpeg'
+        'partner1.png', 'partner2.png', 'partner3.png', 'partner4.png', 'partner5.png',
+        'partner6.png', 'partner7.png', 'partner8.png', 'partner9.png', 'partner10.png',
+        'logo1.png', 'logo2.png', 'logo3.png', 'logo4.png', 'logo5.png',
+        'company1.png', 'company2.png', 'company3.png', 'company4.png', 'company5.png',
+        'client1.png', 'client2.png', 'client3.png', 'client4.png', 'client5.png'
     ];
     
     const validLogos = [];
@@ -354,6 +356,172 @@ function setupLogoRotation(logoFiles) {
             displayLogos();
         }, 500);
     }, 4000);
+}
+
+function initializeTestimonials() {
+    const testimonialContent = document.querySelector('.testimonial-content');
+    if (!testimonialContent) return;
+    
+    console.log('💬 Loading testimonials dynamically...');
+    
+    // List of potential testimonial files to check
+    const potentialTestimonials = [
+        'testimonial1.md', 'testimonial2.md', 'testimonial3.md', 'testimonial4.md', 'testimonial5.md',
+        'chad-hackerman.md', 'lockpickinglawyer.md', 'ceo.md', 'cto.md', 'manager.md',
+        'review1.md', 'review2.md', 'review3.md', 'client1.md', 'client2.md'
+    ];
+    
+    const loadedTestimonials = [];
+    let totalChecked = 0;
+    
+    // Check each potential testimonial file
+    potentialTestimonials.forEach(filename => {
+        fetch(`testimonials/${filename}`)
+            .then(response => {
+                if (response.ok) {
+                    return response.text();
+                }
+                throw new Error('File not found');
+            })
+            .then(markdownContent => {
+                const testimonial = parseMarkdownTestimonial(markdownContent);
+                if (testimonial) {
+                    loadedTestimonials.push(testimonial);
+                    console.log(`✅ Loaded testimonial: ${filename}`);
+                }
+                totalChecked++;
+                
+                if (totalChecked === potentialTestimonials.length) {
+                    setupTestimonialRotation(loadedTestimonials);
+                }
+            })
+            .catch(() => {
+                totalChecked++;
+                if (totalChecked === potentialTestimonials.length) {
+                    setupTestimonialRotation(loadedTestimonials);
+                }
+            });
+    });
+    
+    // Fallback timeout
+    setTimeout(() => {
+        if (loadedTestimonials.length === 0) {
+            console.log('📁 No testimonials found, hiding testimonials section');
+            const testimonialSection = document.querySelector('.testimonial');
+            if (testimonialSection) {
+                testimonialSection.style.display = 'none';
+            }
+        }
+    }, 3000);
+}
+
+function parseMarkdownTestimonial(markdown) {
+    const lines = markdown.trim().split('\n');
+    let quote = '';
+    let author = '';
+    let role = '';
+    let foundAuthor = false;
+    
+    for (let i = 0; i < lines.length; i++) {
+        const line = lines[i].trim();
+        
+        if (line.startsWith('## ')) {
+            author = line.substring(3).trim();
+            foundAuthor = true;
+            // Next line should be the role
+            if (i + 1 < lines.length) {
+                role = lines[i + 1].trim();
+            }
+            break;
+        } else if (!foundAuthor && line) {
+            quote += (quote ? ' ' : '') + line;
+        }
+    }
+    
+    if (quote && author) {
+        return { quote, author, role };
+    }
+    
+    return null;
+}
+
+function setupTestimonialRotation(testimonials) {
+    const testimonialContent = document.querySelector('.testimonial-content');
+    if (!testimonialContent || testimonials.length === 0) return;
+    
+    console.log(`💬 Setting up rotation for ${testimonials.length} testimonials`);
+    
+    // Clear existing content
+    testimonialContent.innerHTML = '';
+    
+    let currentTestimonial = 0;
+    
+    // Create testimonial items
+    testimonials.forEach((testimonial, index) => {
+        const testimonialDiv = document.createElement('div');
+        testimonialDiv.className = 'testimonial-item';
+        if (index === 0) testimonialDiv.classList.add('active');
+        
+        testimonialDiv.innerHTML = `
+            <blockquote>"${testimonial.quote}"</blockquote>
+            <div class="testimonial-author">${testimonial.author}</div>
+            <div class="testimonial-role">${testimonial.role}</div>
+        `;
+        
+        testimonialContent.appendChild(testimonialDiv);
+    });
+    
+    // Create dots if more than one testimonial
+    if (testimonials.length > 1) {
+        const dotsDiv = document.createElement('div');
+        dotsDiv.className = 'testimonial-dots';
+        
+        testimonials.forEach((_, index) => {
+            const dot = document.createElement('div');
+            dot.className = 'testimonial-dot';
+            if (index === 0) dot.classList.add('active');
+            dot.dataset.testimonial = index;
+            dotsDiv.appendChild(dot);
+        });
+        
+        testimonialContent.appendChild(dotsDiv);
+        
+        // Add click handlers to dots
+        const dots = dotsDiv.querySelectorAll('.testimonial-dot');
+        dots.forEach((dot, index) => {
+            dot.addEventListener('click', () => {
+                showTestimonial(index);
+            });
+        });
+        
+        // Auto-rotate testimonials every 8 seconds
+        setInterval(() => {
+            const nextTestimonial = (currentTestimonial + 1) % testimonials.length;
+            showTestimonial(nextTestimonial);
+        }, 8000);
+    }
+    
+    function showTestimonial(index) {
+        const items = testimonialContent.querySelectorAll('.testimonial-item');
+        const dots = testimonialContent.querySelectorAll('.testimonial-dot');
+        
+        // Hide all testimonials
+        items.forEach((item, i) => {
+            item.classList.remove('active', 'prev');
+            if (i === index) {
+                item.classList.add('active');
+            } else if (i < index) {
+                item.classList.add('prev');
+            }
+        });
+        
+        // Update dots
+        dots.forEach((dot, i) => {
+            dot.classList.toggle('active', i === index);
+        });
+        
+        currentTestimonial = index;
+    }
 }
 
 console.log('🎭 FSOSaaS: Where security goes to die!');
